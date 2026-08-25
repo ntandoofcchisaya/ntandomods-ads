@@ -8,11 +8,11 @@ services:
     envVars:
       - key: SITE_NAME
         value: Ntandomods Ads
-      - key: DATA_DIR
-        value: /data/db
-      - key: UPLOAD_DIR
-        value: /data/uploads
-    disk:
-      name: ads-data
-      mountPath: /data
-      sizeGB: 1
+    # Free plan does not support persistent disks. Data is stored on local
+    # disk and will be wiped on redeploy. To persist data permanently,
+    # upgrade to a paid plan and uncomment the block below, plus set
+    # DATA_DIR=/data/db and UPLOAD_DIR=/data/uploads as env vars.
+    # disk:
+    #   name: ads-data
+    #   mountPath: /data
+    #   sizeGB: 1

@@ -31,8 +31,15 @@ This repo includes a `render.yaml` (Render "Blueprint"). Steps:
 1. Push this repo to GitHub (already done if you're reading this on GitHub).
 2. Go to https://dashboard.render.com/blueprints and click **New Blueprint Instance**.
 3. Connect this repository. Render reads `render.yaml` automatically.
-4. Click **Apply** — Render creates the web service with a persistent disk mounted at `/data` so posted ads and photos survive restarts and deploys.
+4. Click **Apply** — Render creates the web service on the **Free** plan.
 5. Once deployed, your app is live at the `.onrender.com` URL Render gives you.
+
+> **Free plan note:** Render's free web services don't support persistent disks,
+> so posted ads and photos are stored on local disk and will be **wiped on
+> every redeploy** (and possibly on restarts). This is fine for testing/demo.
+> For ads to survive permanently, either:
+> - Upgrade the Render service to a **paid plan** and add a persistent disk (uncomment the `disk:` block in `render.yaml`, mount at `/data`, and set `DATA_DIR=/data/db` + `UPLOAD_DIR=/data/uploads`), or
+> - Point the app at an external database/storage (e.g. a free Postgres or S3-compatible bucket) instead of the local JSON file.
 
 ### Environment variables (optional)
 
