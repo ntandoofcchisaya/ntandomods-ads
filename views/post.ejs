@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Post a Free Ad — <%= site.name %></title>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <div class="container narrow">
+    <h1 class="page-title">Post a Free Ad</h1>
+    <p class="page-sub">All ads are 100% free. Buyers will contact you directly on WhatsApp.</p>
+
+    <% if (error) { %>
+      <div class="alert alert-error"><%= error %></div>
+    <% } %>
+
+    <form method="post" action="/post" enctype="multipart/form-data" class="ad-form">
+      <label>Ad Title *
+        <input type="text" name="title" required placeholder="e.g. Toyota Hilux 2015, Excellent Condition">
+      </label>
+
+      <label>Category
+        <select name="category">
+          <% categories.forEach(c => { %>
+            <option value="<%= c %>"><%= c %></option>
+          <% }) %>
+        </select>
+      </label>
+
+      <div class="form-row">
+        <label>Price
+          <input type="number" name="price" min="0" step="0.01" placeholder="e.g. 12000">
+        </label>
+        <label>Currency
+          <select name="currency">
+            <option value="USD">USD</option>
+            <option value="ZWG">ZWG</option>
+            <option value="ZAR">ZAR</option>
+          </select>
+        </label>
+      </div>
+
+      <label>Location
+        <input type="text" name="location" placeholder="e.g. Harare, Bulawayo">
+      </label>
+
+      <label>Description *
+        <textarea name="description" rows="5" required placeholder="Describe your item or service in detail..."></textarea>
+      </label>
+
+      <label>Your WhatsApp Number *
+        <input type="text" name="whatsapp" required placeholder="e.g. 0771629199 or 263771629199">
+        <small>Buyers will click "Chat on WhatsApp" and message this number directly.</small>
+      </label>
+
+      <label>Photos (up to 5)
+        <input type="file" name="images" accept="image/*" multiple>
+      </label>
+
+      <button type="submit" class="btn btn-primary btn-lg btn-block">Post Ad for Free</button>
+    </form>
+  </div>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

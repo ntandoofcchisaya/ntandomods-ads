@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title><%= ad.title %> — <%= site.name %></title>
+  <meta property="og:title" content="<%= ad.title %>">
+  <meta property="og:description" content="<%= ad.description.slice(0,150) %>">
+  <% if (ad.images && ad.images.length) { %><meta property="og:image" content="<%= shareUrl.replace(/\/ad\/.*/, '') %><%= ad.images[0] %>"><% } %>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <div class="container narrow">
+    <% if (posted) { %>
+      <div class="alert alert-success">Your ad is live! Share it below to get more responses.</div>
+    <% } %>
+
+    <a href="/" class="back-link">&larr; Back to all ads</a>
+
+    <div class="ad-detail">
+      <% if (ad.images && ad.images.length) { %>
+        <div class="ad-gallery">
+          <% ad.images.forEach(img => { %>
+            <img src="<%= img %>" alt="<%= ad.title %>">
+          <% }) %>
+        </div>
+      <% } %>
+
+      <span class="ad-cat-badge"><%= ad.category %></span>
+      <h1><%= ad.title %></h1>
+      <% if (ad.price) { %>
+        <div class="ad-detail-price"><%= ad.currency %> <%= ad.price.toLocaleString() %></div>
+      <% } %>
+      <div class="ad-detail-loc">📍 <%= ad.location || 'Zimbabwe' %> &middot; <%= ad.views %> views</div>
+
+      <p class="ad-detail-desc"><%= ad.description %></p>
+
+      <a class="btn btn-whatsapp btn-lg btn-block"
+         href="https://wa.me/<%= ad.whatsapp %>?text=<%= encodeURIComponent('Hi, I saw your ad "' + ad.title + '" on ' + site.name + '. Is it still available?') %>"
+         target="_blank" rel="noopener">
+        💬 Chat on WhatsApp
+      </a>
+
+      <div class="share-section">
+        <div class="share-label">Share this ad</div>
+        <div class="share-buttons">
+          <a class="share-btn share-whatsapp" target="_blank" rel="noopener"
+             href="https://wa.me/?text=<%= encodeURIComponent(ad.title + ' - ' + shareUrl) %>">WhatsApp</a>
+          <a class="share-btn share-facebook" target="_blank" rel="noopener"
+             href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent(shareUrl) %>">Facebook</a>
+          <a class="share-btn share-instagram" target="_blank" rel="noopener"
+             href="https://www.instagram.com/">Instagram</a>
+          <button class="share-btn share-copy" onclick="copyLink()">Copy Link</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+
+  <script>
+    function copyLink() {
+      navigator.clipboard.writeText("<%= shareUrl %>").then(() => {
+        alert("Link copied! Paste it anywhere, including Instagram bio or DM.");
+      });
+    }
+  </script>
+</body>
+</html>

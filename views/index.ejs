@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title><%= site.name %> — Free Ads with WhatsApp Contact</title>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <section class="hero">
+    <div class="container">
+      <h1>Post free ads. Get contacted on WhatsApp.</h1>
+      <p>No fees, no sign up. Create an ad in under a minute and share it on WhatsApp, Facebook &amp; Instagram.</p>
+      <a href="/post" class="btn btn-primary btn-lg">+ Post a Free Ad</a>
+    </div>
+  </section>
+
+  <div class="container">
+    <form class="search-bar" method="get" action="/">
+      <input type="text" name="search" placeholder="Search ads (e.g. Toyota, iPhone, plot)" value="<%= search %>">
+      <select name="category" onchange="this.form.submit()">
+        <option value="All" <%= category === 'All' ? 'selected' : '' %>>All Categories</option>
+        <% categories.forEach(c => { %>
+          <option value="<%= c %>" <%= category === c ? 'selected' : '' %>><%= c %></option>
+        <% }) %>
+      </select>
+      <button type="submit" class="btn btn-secondary">Search</button>
+    </form>
+
+    <div class="ads-grid">
+      <% if (ads.length === 0) { %>
+        <div class="empty-state">
+          <p>No ads yet<%= search ? ' matching your search' : '' %>. Be the first to <a href="/post">post one for free</a>.</p>
+        </div>
+      <% } %>
+      <% ads.forEach(ad => { %>
+        <a class="ad-card" href="/ad/<%= ad.id %>">
+          <div class="ad-card-img">
+            <% if (ad.images && ad.images.length) { %>
+              <img src="<%= ad.images[0] %>" alt="<%= ad.title %>">
+            <% } else { %>
+              <div class="no-img">No Image</div>
+            <% } %>
+            <span class="ad-cat"><%= ad.category %></span>
+          </div>
+          <div class="ad-card-body">
+            <h3><%= ad.title %></h3>
+            <% if (ad.price) { %>
+              <div class="ad-price"><%= ad.currency %> <%= ad.price.toLocaleString() %></div>
+            <% } %>
+            <div class="ad-loc"><%= ad.location || 'Zimbabwe' %></div>
+          </div>
+        </a>
+      <% }) %>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+</body>
+</html>
