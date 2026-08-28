@@ -5,13 +5,18 @@
       <span><%= site.name %></span>
     </a>
     <nav class="nav">
-      <a href="/">Browse Ads</a>
+      <a href="/"><%= t('browse_ads') %></a>
       <% if (typeof currentUser !== 'undefined' && currentUser) { %>
         <a href="/rewards" class="stars-pill">&#11088; <%= currentUser.stars %></a>
       <% } else { %>
-        <a href="/login">Log In</a>
+        <a href="/login"><%= t('log_in') %></a>
       <% } %>
-      <a href="/post" class="btn btn-post">+ Post Free Ad</a>
+      <select class="lang-switch" onchange="location.href='?lang=' + this.value">
+        <% SUPPORTED_LANGS.forEach(code => { %>
+          <option value="<%= code %>" <%= lang === code ? 'selected' : '' %>><%= LANG_NAMES[code] %></option>
+        <% }) %>
+      </select>
+      <a href="/post" class="btn btn-post"><%= t('post_free_ad') %></a>
     </nav>
   </div>
 </header>

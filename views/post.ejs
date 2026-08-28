@@ -41,20 +41,29 @@
         </label>
       </div>
 
-      <label>Location
-        <input type="text" name="location" placeholder="e.g. Harare, Bulawayo">
-      </label>
+      <div class="form-row">
+        <label>Country
+          <select name="country" id="countrySelect">
+            <% countries.forEach(c => { %>
+              <option value="<%= c.code %>"><%= c.name %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label>City / Town
+          <input type="text" name="city" placeholder="e.g. Harare, Nairobi, London">
+        </label>
+      </div>
 
       <label>Description *
         <textarea name="description" rows="5" required placeholder="Describe your item or service in detail..."></textarea>
       </label>
 
       <label>Your WhatsApp Number *
-        <input type="text" name="whatsapp" required placeholder="e.g. 0771629199 or 263771629199">
-        <small>Buyers will click "Chat on WhatsApp" and message this number directly.</small>
+        <input type="text" name="whatsapp" required placeholder="e.g. 771629199 (without leading 0, country selected above)">
+        <small>Buyers will click "Chat on WhatsApp" and message this number directly. We use the country you picked above to format it correctly.</small>
       </label>
 
-      <label>Photos (up to 5)
+      <label>Photos (up to <%= maxPhotos %>)
         <input type="file" name="images" accept="image/*" multiple>
       </label>
 

@@ -18,6 +18,13 @@ Developed by **Ntandomods ZW**. Contact: **263771629199** (WhatsApp).
 - No database server required — stores data as JSON on a persistent disk
 - 100% free to post, no accounts, no fees
 
+## Going global
+
+- **Phone numbers are parsed per-country**, not guessed. Posting an ad or logging in now asks for a country (defaults to a common list led by Zimbabwe, easy to extend in `models/countries.js`), and the number is normalized with `libphonenumber-js` using that country — so a UK, Kenyan, or US number produces a correct `wa.me` link instead of being mangled into a fake Zimbabwean one. Old ads/accounts created before this existed still work via a best-effort fallback.
+- **Location is now structured** as `country` (ISO code) + free-text `city`, shown as "City, Country" on listings and used to power the country filter on the browse page (`?country=KE`, etc). Old ads keep displaying their original free-text `location` field.
+- **Language switcher** in the header (English, Français, Português, Kiswahili, chiShona) remembers the visitor's choice for the session. Strings live in `models/i18n.js` — add a language by adding one more column to each entry, no build step required.
+- **The site's own contact number is no longer shown in the footer** — only the developer credit remains. Seller ads still show their own WhatsApp button as before (that's the whole point of the app); only the site's own operator number was removed from public view.
+
 ## Stars & Rewards
 
 Users can log in with just their WhatsApp number (no password) at `/login`. Logged-in users get a rewards dashboard at `/rewards` where they can:

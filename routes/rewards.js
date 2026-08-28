@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const countries = require('../models/countries');
 
 const SITE = {
   name: process.env.SITE_NAME || 'Ntandomods Ads',
@@ -16,15 +17,15 @@ function requireLogin(req, res, next) {
 // --- Login / "sign up" (same thing — just enter your WhatsApp number) ---
 
 router.get('/login', (req, res) => {
-  res.render('login', { site: SITE, error: null, next: req.query.next || '/rewards', invite: req.query.invite || '' });
+  res.render('login', { site: SITE, countries, error: null, next: req.query.next || '/rewards', invite: req.query.invite || '' });
 });
 
 router.post('/login', (req, res) => {
-  const { whatsapp, invite } = req.body;
+  const { whatsapp, invite, country } = req.body;
   if (!whatsapp || !whatsapp.trim()) {
-    return res.render('login', { site: SITE, error: 'Enter your WhatsApp number.', next: req.body.next || '/rewards', invite: invite || '' });
+    return res.render('login', { site: SITE, countries, error: 'Enter your WhatsApp number.', next: req.body.next || '/rewards', invite: invite || '' });
   }
-  const user = User.findOrCreate(whatsapp, invite);
+  const user = User.findOrCreate(whatsapp, invite, country);
   req.session.userId = user.id;
   res.redirect(req.body.next || '/rewards');
 });

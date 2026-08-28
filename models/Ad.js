@@ -1,13 +1,25 @@
 const { v4: uuidv4 } = require('uuid');
 const { readDb, writeDb } = require('./db');
+const { parsePhoneNumberFromString } = require('libphonenumber-js');
 
-function normalizeWhatsapp(number) {
-  // Strip anything that isn't a digit or leading +
-  let n = (number || '').trim().replace(/[^\d+]/g, '');
-  if (n.startsWith('+')) n = n.slice(1);
+// Turns a number + an explicit ISO country (e.g. "ZW", "KE", "GB") into
+// WhatsApp's required international format (digits only, no +).
+// Falls back to a Zimbabwe-shaped guess ONLY if no country was given at all,
+// to avoid breaking any old data/links created before country selection existed.
+function normalizeWhatsapp(number, country) {
+  let raw = (number || '').trim();
+  if (country) {
+    const parsed = parsePhoneNumberFromString(raw, country);
+    if (parsed && parsed.isValid()) {
+      return parsed.number.replace('+', '');
+    }
+  }
+  // No country given, or parsing failed — best-effort cleanup of what we got.
+  let n = raw.replace(/[^\d+]/g, '');
+  if (n.startsWith('+')) return n.slice(1);
   if (n.startsWith('0')) {
-    // Assume Zimbabwe local format 0771234567 -> 263771234567
-    n = '263' + n.slice(1);
+    // Old behaviour, kept only as a last-resort fallback.
+    return '263' + n.slice(1);
   }
   return n;
 }
@@ -21,8 +33,10 @@ function createAd(data) {
     price: data.price ? Number(data.price) : null,
     currency: data.currency || 'USD',
     category: data.category || 'Other',
-    location: data.location ? data.location.trim() : '',
-    whatsapp: normalizeWhatsapp(data.whatsapp),
+    country: data.country || '',            // ISO 3166-1 alpha-2, e.g. "ZW", "KE", "GB"
+    city: data.city ? data.city.trim() : '',
+    location: data.location ? data.location.trim() : '', // legacy free-text, kept for old ads
+    whatsapp: normalizeWhatsapp(data.whatsapp, data.country),
     images: data.images || [],
     createdAt: new Date().toISOString(),
     views: 0,
@@ -37,11 +51,14 @@ function createAd(data) {
   return ad;
 }
 
-function getAllAds({ category, search } = {}) {
+function getAllAds({ category, search, country } = {}) {
   const db = readDb();
   let ads = db.ads.filter(a => a.status === 'active');
   if (category && category !== 'All') {
     ads = ads.filter(a => a.category === category);
+  }
+  if (country && country !== 'All') {
+    ads = ads.filter(a => a.country === country);
   }
   if (search) {
     const q = search.toLowerCase();

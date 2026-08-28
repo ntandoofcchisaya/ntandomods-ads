@@ -7,6 +7,7 @@ const Ad = require('../models/Ad');
 const User = require('../models/User');
 const { readDb } = require('../models/db');
 const { generateAdImage } = require('../services/adImage');
+const countries = require('../models/countries');
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -39,17 +40,17 @@ const SITE = {
 };
 
 router.get('/', (req, res) => {
-  const { category, search } = req.query;
-  const ads = Ad.getAllAds({ category, search });
+  const { category, search, country } = req.query;
+  const ads = Ad.getAllAds({ category, search, country });
   const { categories } = readDb();
-  res.render('index', { ads, categories, category: category || 'All', search: search || '', site: SITE });
+  res.render('index', { ads, categories, countries, category: category || 'All', country: country || 'All', search: search || '', site: SITE });
 });
 
 router.get('/post', (req, res) => {
   const { categories } = readDb();
   const user = req.session.userId ? User.findById(req.session.userId) : null;
   const maxPhotos = user && User.hasActiveFeature(user, 'extra_photos') ? 10 : 5;
-  res.render('post', { categories, site: SITE, error: null, maxPhotos });
+  res.render('post', { categories, countries, site: SITE, error: null, maxPhotos });
 });
 
 router.post('/post', (req, res, next) => {
@@ -62,9 +63,9 @@ router.post('/post', (req, res, next) => {
   const user = req.session.userId ? User.findById(req.session.userId) : null;
   const maxPhotos = user && User.hasActiveFeature(user, 'extra_photos') ? 10 : 5;
   try {
-    const { title, description, price, currency, category, location, whatsapp } = req.body;
+    const { title, description, price, currency, category, country, city, location, whatsapp } = req.body;
     if (!title || !description || !whatsapp) {
-      return res.render('post', { categories, site: SITE, error: 'Title, description and WhatsApp number are required.', maxPhotos });
+      return res.render('post', { categories, countries, site: SITE, error: 'Title, description and WhatsApp number are required.', maxPhotos });
     }
     const images = (req.files || []).map(f => '/uploads/' + f.filename);
 
@@ -76,14 +77,14 @@ router.post('/post', (req, res, next) => {
       if (User.hasActiveFeature(user, 'no_expiry')) featureFlags.neverExpires = true;
     }
 
-    const ad = Ad.createAd({ title, description, price, currency, category, location, whatsapp, images, ...featureFlags });
+    const ad = Ad.createAd({ title, description, price, currency, category, country, city, location, whatsapp, images, ...featureFlags });
 
     // Pay the referrer once, the first time this account posts an ad.
     if (user) User.rewardReferrerIfEligible(user.id);
 
     res.redirect('/ad/' + ad.id + '?posted=1');
   } catch (err) {
-    res.render('post', { categories, site: SITE, error: err.message, maxPhotos });
+    res.render('post', { categories, countries, site: SITE, error: err.message, maxPhotos });
   }
 });
 

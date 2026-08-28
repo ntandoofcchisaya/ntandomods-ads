@@ -17,14 +17,20 @@
 
   <div class="container">
     <form class="search-bar" method="get" action="/">
-      <input type="text" name="search" placeholder="Search ads (e.g. Toyota, iPhone, plot)" value="<%= search %>">
+      <input type="text" name="search" placeholder="<%= t('search_placeholder') %>" value="<%= search %>">
       <select name="category" onchange="this.form.submit()">
-        <option value="All" <%= category === 'All' ? 'selected' : '' %>>All Categories</option>
+        <option value="All" <%= category === 'All' ? 'selected' : '' %>><%= t('all_categories') %></option>
         <% categories.forEach(c => { %>
           <option value="<%= c %>" <%= category === c ? 'selected' : '' %>><%= c %></option>
         <% }) %>
       </select>
-      <button type="submit" class="btn btn-secondary">Search</button>
+      <select name="country" onchange="this.form.submit()">
+        <option value="All" <%= country === 'All' ? 'selected' : '' %>><%= t('all_countries') %></option>
+        <% countries.forEach(c => { %>
+          <option value="<%= c.code %>" <%= country === c.code ? 'selected' : '' %>><%= c.name %></option>
+        <% }) %>
+      </select>
+      <button type="submit" class="btn btn-secondary"><%= t('search') %></button>
     </form>
 
     <div class="ads-grid">
@@ -53,7 +59,7 @@
             <% if (ad.price) { %>
               <div class="ad-price"><%= ad.currency %> <%= ad.price.toLocaleString() %></div>
             <% } %>
-            <div class="ad-loc"><%= ad.location || 'Zimbabwe' %></div>
+            <div class="ad-loc"><%= displayLocation(ad) || 'Location not set' %></div>
           </div>
         </a>
       <% }) %>

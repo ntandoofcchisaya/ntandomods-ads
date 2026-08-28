@@ -27,8 +27,32 @@ app.use(session({
 
 // Makes the logged-in user (if any) available to every view as `currentUser`.
 const User = require('./models/User');
+const { makeT, SUPPORTED, LANG_NAMES } = require('./models/i18n');
+const countryList = require('./models/countries');
 app.use((req, res, next) => {
   res.locals.currentUser = req.session.userId ? User.findById(req.session.userId) : null;
+
+  // Language: ?lang=xx wins and is remembered in the session; else fall back
+  // to whatever was picked before, else English.
+  if (req.query.lang && SUPPORTED.includes(req.query.lang)) {
+    req.session.lang = req.query.lang;
+  }
+  const lang = req.session.lang || 'en';
+  res.locals.lang = lang;
+  res.locals.t = makeT(lang);
+  res.locals.SUPPORTED_LANGS = SUPPORTED;
+  res.locals.LANG_NAMES = LANG_NAMES;
+
+  // "City, Country" display helper — falls back to the old free-text
+  // `location` field for ads created before country/city existed.
+  res.locals.displayLocation = (ad) => {
+    if (ad.city || ad.country) {
+      const countryName = countryList.find(c => c.code === ad.country)?.name || ad.country || '';
+      return [ad.city, countryName].filter(Boolean).join(', ');
+    }
+    return ad.location || '';
+  };
+
   next();
 });
 

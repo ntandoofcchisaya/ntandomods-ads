@@ -40,7 +40,7 @@
       <% if (ad.price) { %>
         <div class="ad-detail-price"><%= ad.currency %> <%= ad.price.toLocaleString() %></div>
       <% } %>
-      <div class="ad-detail-loc">📍 <%= ad.location || 'Zimbabwe' %> &middot; <%= ad.views %> views</div>
+      <div class="ad-detail-loc">📍 <%= displayLocation(ad) || 'Location not set' %> &middot; <%= ad.views %> views</div>
 
       <p class="ad-detail-desc"><%= ad.description %></p>
 

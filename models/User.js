@@ -32,8 +32,8 @@ function generateInviteCode() {
   return Math.random().toString(36).slice(2, 8).toUpperCase();
 }
 
-function findByWhatsapp(number) {
-  const wa = normalizeWhatsapp(number);
+function findByWhatsapp(number, country) {
+  const wa = normalizeWhatsapp(number, country);
   const db = ensureUsersDb();
   return db.users.find(u => u.whatsapp === wa);
 }
@@ -50,9 +50,10 @@ function findById(id) {
 
 // Creates the account if it doesn't exist yet, or returns the existing one.
 // `invitedByCode` is the referrer's invite code, only recorded on first creation.
-function findOrCreate(number, invitedByCode) {
-  const wa = normalizeWhatsapp(number);
-  let user = findByWhatsapp(wa);
+// `country` (ISO alpha-2) is used to correctly parse the phone number.
+function findOrCreate(number, invitedByCode, country) {
+  const wa = normalizeWhatsapp(number, country);
+  let user = findByWhatsapp(wa); // already normalized, no country needed here
   if (user) return user;
 
   const db = ensureUsersDb();

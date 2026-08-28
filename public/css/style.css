@@ -161,3 +161,7 @@ input[type="text"] {
   width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px;
   font-family: inherit; font-size: 0.95rem;
 }
+.lang-switch {
+  border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px;
+  font-family: inherit; font-size: 0.85rem; background: #fff; cursor: pointer;
+}
