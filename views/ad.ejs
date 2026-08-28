@@ -4,7 +4,11 @@
   <title><%= ad.title %> — <%= site.name %></title>
   <meta property="og:title" content="<%= ad.title %>">
   <meta property="og:description" content="<%= ad.description.slice(0,150) %>">
-  <% if (ad.images && ad.images.length) { %><meta property="og:image" content="<%= shareUrl.replace(/\/ad\/.*/, '') %><%= ad.images[0] %>"><% } %>
+  <meta property="og:image" content="<%= shareUrl %>/image.png">
+  <meta property="og:image:width" content="1080">
+  <meta property="og:image:height" content="1350">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="<%= shareUrl %>/image.png">
   <%- include('partials/head') %>
 </head>
 <body>
@@ -41,17 +45,25 @@
         💬 Chat on WhatsApp
       </a>
 
+      <div class="share-image-preview">
+        <img src="/ad/<%= ad.id %>/image.png" alt="Shareable image for <%= ad.title %>" loading="lazy">
+      </div>
+
       <div class="share-section">
         <div class="share-label">Share this ad</div>
         <div class="share-buttons">
+          <button class="share-btn share-native" id="nativeShareBtn" style="display:none;">📤 Share</button>
+          <a class="share-btn share-image-dl" href="/ad/<%= ad.id %>/image.png" download="<%= ad.id %>.png">🖼️ Download Image</a>
           <a class="share-btn share-whatsapp" target="_blank" rel="noopener"
              href="https://wa.me/?text=<%= encodeURIComponent(ad.title + ' - ' + shareUrl) %>">WhatsApp</a>
           <a class="share-btn share-facebook" target="_blank" rel="noopener"
              href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent(shareUrl) %>">Facebook</a>
-          <a class="share-btn share-instagram" target="_blank" rel="noopener"
-             href="https://www.instagram.com/">Instagram</a>
+          <a class="share-btn share-x" target="_blank" rel="noopener"
+             href="https://twitter.com/intent/tweet?text=<%= encodeURIComponent(ad.title + ' — ' + (ad.price ? ad.currency + ' ' + ad.price.toLocaleString() + ' ' : '')) %>&url=<%= encodeURIComponent(shareUrl) %>">X / Twitter</a>
+          <button class="share-btn share-instagram" id="instagramShareBtn">Instagram</button>
           <button class="share-btn share-copy" onclick="copyLink()">Copy Link</button>
         </div>
+        <p class="share-hint">Tip: the image above includes a QR code buyers can scan straight to this ad — perfect for WhatsApp Status, Instagram Stories, or printing.</p>
       </div>
     </div>
   </div>
@@ -59,11 +71,64 @@
   <%- include('partials/footer') %>
 
   <script>
+    const shareUrl = "<%= shareUrl %>";
+    const imageUrl = "<%= shareUrl %>/image.png";
+    const shareTitle = "<%- ad.title.replace(/"/g, '\\\\"') %>";
+    const shareCaption = shareTitle + " — " + shareUrl;
+
     function copyLink() {
-      navigator.clipboard.writeText("<%= shareUrl %>").then(() => {
+      navigator.clipboard.writeText(shareUrl).then(() => {
         alert("Link copied! Paste it anywhere, including Instagram bio or DM.");
       });
     }
+
+    async function fetchImageFile() {
+      const res = await fetch(imageUrl);
+      const blob = await res.blob();
+      return new File([blob], "<%= ad.id %>.png", { type: "image/png" });
+    }
+
+    // Native mobile share sheet: shares the actual image file (not just a
+    // link) when the browser supports the Web Share API with files
+    // (most Android/iOS browsers). Falls back to link-only share, and the
+    // button is hidden entirely on browsers with no share API at all.
+    const nativeBtn = document.getElementById('nativeShareBtn');
+    if (navigator.share) {
+      nativeBtn.style.display = '';
+      nativeBtn.addEventListener('click', async () => {
+        try {
+          const file = await fetchImageFile();
+          const shareData = { title: shareTitle, text: shareCaption, url: shareUrl };
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            shareData.files = [file];
+            delete shareData.url; // avoid duplicate link when sharing a file+text
+          }
+          await navigator.share(shareData);
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            navigator.clipboard.writeText(shareUrl);
+            alert('Could not open the share sheet, link copied instead.');
+          }
+        }
+      });
+    }
+
+    // Instagram has no public web endpoint to prefill a post/story, so the
+    // practical flow is: copy the caption, download the image, then the
+    // user opens Instagram and shares/posts it manually (Stories accepts
+    // 4:5 images from the camera roll perfectly).
+    document.getElementById('instagramShareBtn').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(shareCaption);
+      } catch (e) { /* clipboard may be unavailable, continue anyway */ }
+      const a = document.createElement('a');
+      a.href = imageUrl;
+      a.download = "<%= ad.id %>.png";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      alert('Caption copied and image downloading. Open Instagram and share it to your Story or Feed!');
+    });
   </script>
 </body>
 </html>

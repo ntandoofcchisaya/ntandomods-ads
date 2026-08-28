@@ -10,7 +10,10 @@ Developed by **Ntandomods ZW**. Contact: **263771629199** (WhatsApp).
 
 - Post free ads: title, description, price, category, location, photos (up to 5), WhatsApp number
 - Browse & search ads by keyword and category
-- Ad detail page with image gallery, "Chat on WhatsApp" button (prefilled message), and share buttons (WhatsApp / Facebook / Instagram / copy link)
+- Ad detail page with image gallery, "Chat on WhatsApp" button (prefilled message), and share buttons (WhatsApp / Facebook / X / Instagram / copy link / native share)
+- Every ad auto-generates a shareable **image card** (photo + title + price + location + WhatsApp contact + QR code) at `/ad/:id/image.png`, cached on disk and used for Open Graph / Twitter Card link previews
+- **Download Image** button and native mobile **Share** button (Web Share API) send the ad as an actual image file, not just a link — ideal for WhatsApp Status, Instagram Stories/Feed, or Facebook posts
+- Instagram button copies a ready-made caption and downloads the image, since Instagram has no public web endpoint to prefill a post/story
 - Zimbabwe local numbers (e.g. `0771629199`) are auto-converted to international WhatsApp format (`263771629199`)
 - No database server required — stores data as JSON on a persistent disk
 - 100% free to post, no accounts, no fees
@@ -50,9 +53,24 @@ This repo includes a `render.yaml` (Render "Blueprint"). Steps:
 | `DATA_DIR` | `./data` | Where the JSON "database" file is stored |
 | `UPLOAD_DIR` | `./uploads` | Where uploaded ad photos are stored |
 
+### Shareable ad images
+
+Each ad has a generated PNG at `/ad/:id/image.png` (1080x1350, 4:5 — plays
+well on WhatsApp Status, Instagram feed/Stories, and Facebook). It is built
+with `sharp` + `qrcode` from the ad's first photo (or a branded gradient if
+there is no photo), composited with the title, price, location, a
+"Chat on WhatsApp" bar, and a QR code linking back to the ad. Generated
+images are cached under `IMAGE_CACHE_DIR` (default `./cache/ad-images`) and
+regenerated automatically if an ad is newer than its cached image.
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `IMAGE_CACHE_DIR` | `./cache/ad-images` | Where generated shareable ad-card PNGs are cached |
+
 ## Tech stack
 
 - Node.js + Express
 - EJS templates (server-rendered, fast, no build step)
 - Multer for photo uploads
+- Sharp + qrcode for generated shareable ad-card images
 - Plain JSON file storage (no native DB dependencies — deploys cleanly anywhere)

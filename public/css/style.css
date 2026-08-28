@@ -104,14 +104,21 @@ a { color: inherit; text-decoration: none; }
 .ad-detail-loc { color: var(--gray); margin-bottom: 18px; font-size: 0.9rem; }
 .ad-detail-desc { line-height: 1.7; white-space: pre-wrap; margin-bottom: 22px; }
 
+.share-image-preview { margin-top: 22px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); max-width: 320px; }
+.share-image-preview img { width: 100%; display: block; }
+
 .share-section { margin-top: 22px; border-top: 1px solid var(--border); padding-top: 18px; }
 .share-label { font-weight: 600; margin-bottom: 10px; }
 .share-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
-.share-btn { padding: 9px 16px; border-radius: 8px; font-weight: 600; font-size: 0.88rem; border: none; cursor: pointer; color: #fff; }
+.share-btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 8px; font-weight: 600; font-size: 0.88rem; border: none; cursor: pointer; color: #fff; }
 .share-whatsapp { background: var(--whatsapp); }
 .share-facebook { background: #1877f2; }
+.share-x { background: #000; }
 .share-instagram { background: linear-gradient(45deg, #f58529, #dd2a7b, #8134af, #515bd4); }
 .share-copy { background: var(--dark); }
+.share-native { background: var(--green); }
+.share-image-dl { background: #4338ca; }
+.share-hint { color: var(--gray); font-size: 0.82rem; margin-top: 12px; }
 
 /* Footer */
 .site-footer { background: #101418; color: #cbd5e1; padding: 26px 0; margin-top: 40px; }
