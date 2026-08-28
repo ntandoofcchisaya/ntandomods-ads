@@ -53,6 +53,13 @@ app.use((req, res, next) => {
     return ad.location || '';
   };
 
+  // "USD 12,000 (negotiable)" or "Price on request" when no price was set.
+  res.locals.displayPrice = (ad) => {
+    if (!ad.price) return 'Price on request';
+    const amount = `${ad.currency} ${ad.price.toLocaleString()}`;
+    return ad.negotiable ? `${amount} (negotiable)` : amount;
+  };
+
   next();
 });
 

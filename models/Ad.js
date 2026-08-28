@@ -32,6 +32,7 @@ function createAd(data) {
     description: data.description.trim(),
     price: data.price ? Number(data.price) : null,
     currency: data.currency || 'USD',
+    negotiable: !!data.negotiable,
     category: data.category || 'Other',
     country: data.country || '',            // ISO 3166-1 alpha-2, e.g. "ZW", "KE", "GB"
     city: data.city ? data.city.trim() : '',

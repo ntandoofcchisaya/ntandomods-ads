@@ -63,7 +63,7 @@ router.post('/post', (req, res, next) => {
   const user = req.session.userId ? User.findById(req.session.userId) : null;
   const maxPhotos = user && User.hasActiveFeature(user, 'extra_photos') ? 10 : 5;
   try {
-    const { title, description, price, currency, category, country, city, location, whatsapp } = req.body;
+    const { title, description, price, currency, negotiable, category, country, city, location, whatsapp } = req.body;
     if (!title || !description || !whatsapp) {
       return res.render('post', { categories, countries, site: SITE, error: 'Title, description and WhatsApp number are required.', maxPhotos });
     }
@@ -77,7 +77,7 @@ router.post('/post', (req, res, next) => {
       if (User.hasActiveFeature(user, 'no_expiry')) featureFlags.neverExpires = true;
     }
 
-    const ad = Ad.createAd({ title, description, price, currency, category, country, city, location, whatsapp, images, ...featureFlags });
+    const ad = Ad.createAd({ title, description, price, currency, negotiable: negotiable === 'on', category, country, city, location, whatsapp, images, ...featureFlags });
 
     // Pay the referrer once, the first time this account posts an ad.
     if (user) User.rewardReferrerIfEligible(user.id);

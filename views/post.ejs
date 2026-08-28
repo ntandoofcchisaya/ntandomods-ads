@@ -30,7 +30,7 @@
 
       <div class="form-row">
         <label>Price
-          <input type="number" name="price" min="0" step="0.01" placeholder="e.g. 12000">
+          <input type="number" name="price" min="0" step="0.01" placeholder="Leave blank for 'Price on request'">
         </label>
         <label>Currency
           <select name="currency">
@@ -40,6 +40,11 @@
           </select>
         </label>
       </div>
+
+      <label class="checkbox-label">
+        <input type="checkbox" name="negotiable">
+        Price is negotiable
+      </label>
 
       <div class="form-row">
         <label>Country

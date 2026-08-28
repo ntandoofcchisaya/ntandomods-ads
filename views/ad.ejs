@@ -37,9 +37,7 @@
         <span class="ad-highlight-badge">&#11088; Featured</span>
       <% } %>
       <h1><%= ad.title %></h1>
-      <% if (ad.price) { %>
-        <div class="ad-detail-price"><%= ad.currency %> <%= ad.price.toLocaleString() %></div>
-      <% } %>
+      <div class="ad-detail-price<%= ad.price ? '' : ' ad-price-request' %>"><%= displayPrice(ad) %></div>
       <div class="ad-detail-loc">📍 <%= displayLocation(ad) || 'Location not set' %> &middot; <%= ad.views %> views</div>
 
       <p class="ad-detail-desc"><%= ad.description %></p>
@@ -64,7 +62,7 @@
           <a class="share-btn share-facebook" target="_blank" rel="noopener"
              href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent(shareUrl) %>">Facebook</a>
           <a class="share-btn share-x" target="_blank" rel="noopener"
-             href="https://twitter.com/intent/tweet?text=<%= encodeURIComponent(ad.title + ' — ' + (ad.price ? ad.currency + ' ' + ad.price.toLocaleString() + ' ' : '')) %>&url=<%= encodeURIComponent(shareUrl) %>">X / Twitter</a>
+             href="https://twitter.com/intent/tweet?text=<%= encodeURIComponent(ad.title + ' — ' + (ad.price ? displayPrice(ad) + ' ' : '')) %>&url=<%= encodeURIComponent(shareUrl) %>">X / Twitter</a>
           <button class="share-btn share-instagram" id="instagramShareBtn">Instagram</button>
           <button class="share-btn share-copy" onclick="copyLink()">Copy Link</button>
         </div>

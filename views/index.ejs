@@ -56,9 +56,7 @@
           </div>
           <div class="ad-card-body">
             <h3><%= ad.title %></h3>
-            <% if (ad.price) { %>
-              <div class="ad-price"><%= ad.currency %> <%= ad.price.toLocaleString() %></div>
-            <% } %>
+            <div class="ad-price<%= ad.price ? '' : ' ad-price-request' %>"><%= displayPrice(ad) %></div>
             <div class="ad-loc"><%= displayLocation(ad) || 'Location not set' %></div>
           </div>
         </a>
