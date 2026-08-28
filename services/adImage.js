@@ -11,6 +11,9 @@ const QRCode = require('qrcode');
 const CARD_W = 1080;
 const CARD_H = 1350; // 4:5 — plays nicely on IG feed & WhatsApp Status
 
+const BRAND_MARK_PATH = path.join(__dirname, '..', 'public', 'img', 'brand-mark-96.png');
+const BRAND_MARK_SIZE = 60; // rendered size (px) in the top brand bar
+
 function escapeXml(str = '') {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -88,6 +91,15 @@ async function generateAdImage({ ad, site, shareUrl, uploadDir }) {
     .extend({ top: 14, bottom: 14, left: 14, right: 14, background: '#ffffff' })
     .toBuffer();
 
+  // Brand mark (logo) shown in the top-left of the card, replacing the old
+  // plain green circle. Falls back to no logo if the asset is missing.
+  let brandMarkBuffer = null;
+  if (fs.existsSync(BRAND_MARK_PATH)) {
+    brandMarkBuffer = await sharp(BRAND_MARK_PATH)
+      .resize(BRAND_MARK_SIZE, BRAND_MARK_SIZE)
+      .toBuffer();
+  }
+
   const priceText = ad.price ? `${ad.currency || 'USD'} ${Number(ad.price).toLocaleString()}` : '';
   const titleLines = wrapLines(ad.title, 22, 3);
   const catLabel = escapeXml(ad.category || 'Ad');
@@ -119,9 +131,7 @@ async function generateAdImage({ ad, site, shareUrl, uploadDir }) {
 
       <!-- top brand bar -->
       <rect x="0" y="0" width="${CARD_W}" height="96" fill="rgba(0,0,0,0.35)"/>
-      <circle cx="52" cy="48" r="26" fill="#16a34a"/>
-      <text x="52" y="57" text-anchor="middle" class="brand" style="font-size:26px;">N</text>
-      <text x="96" y="58" class="brand">${escapeXml(site.name)}</text>
+      <text x="${18 + BRAND_MARK_SIZE + 14}" y="58" class="brand">${escapeXml(site.name)}</text>
       <rect x="${CARD_W - 190}" y="26" width="140" height="44" rx="22" fill="#16a34a"/>
       <text x="${CARD_W - 120}" y="55" text-anchor="middle" class="cat" style="font-size:22px;">${catLabel}</text>
 
@@ -140,12 +150,17 @@ async function generateAdImage({ ad, site, shareUrl, uploadDir }) {
       <rect x="${CARD_W - 268}" y="${CARD_H - 268}" width="220" height="220" rx="16" fill="#ffffff"/>
     </svg>`;
 
+  const layers = [
+    { input: Buffer.from(overlaySvg) },
+    { input: Buffer.from(foregroundSvg) },
+    { input: qrRounded, left: CARD_W - 258, top: CARD_H - 258 }
+  ];
+  if (brandMarkBuffer) {
+    layers.push({ input: brandMarkBuffer, left: 18, top: Math.round((96 - BRAND_MARK_SIZE) / 2) });
+  }
+
   const composite = await sharp(background)
-    .composite([
-      { input: Buffer.from(overlaySvg) },
-      { input: Buffer.from(foregroundSvg) },
-      { input: qrRounded, left: CARD_W - 258, top: CARD_H - 258 }
-    ])
+    .composite(layers)
     .png({ quality: 90 })
     .toBuffer();
 

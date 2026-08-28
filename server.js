@@ -67,6 +67,31 @@ app.use((req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Ntandomods Ads app running on port ${PORT}`);
-});
+const { connectDb, closeDb } = require('./models/db');
+
+let server;
+connectDb()
+  .then(() => {
+    server = app.listen(PORT, () => {
+      console.log(`Ntandomods Ads app running on port ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('Failed to connect to MongoDB, server not started:', err);
+    process.exit(1);
+  });
+
+// Give in-flight MongoDB writes a chance to finish before the process exits
+// (Render sends SIGTERM before redeploys/restarts).
+async function shutdown() {
+  console.log('Shutting down, flushing pending writes...');
+  try {
+    await closeDb();
+  } catch (err) {
+    console.error('Error while closing DB:', err);
+  }
+  if (server) server.close(() => process.exit(0));
+  else process.exit(0);
+}
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
