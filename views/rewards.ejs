@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>My Stars & Rewards — <%= site.name %></title>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <div class="container" style="padding: 32px 20px;">
+    <h1>&#11088; My Stars: <%= user.stars %></h1>
+
+    <% if (message) { %><div class="alert alert-success"><%= message %></div><% } %>
+    <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+    <div class="rewards-grid">
+      <div class="card" style="padding: 20px;">
+        <h3>Watch an ad, earn a star</h3>
+        <p class="muted">Up to <%= starRules.DAILY_AD_WATCH_CAP %> stars per day.</p>
+        <a href="/rewards/watch" class="btn btn-secondary">Watch Ad (+<%= starRules.STARS_PER_AD_WATCH %> star)</a>
+      </div>
+
+      <div class="card" style="padding: 20px;">
+        <h3>Invite friends</h3>
+        <p class="muted">Earn <%= starRules.STARS_PER_REFERRAL %> stars once your friend posts their first ad. Invited so far: <strong><%= referralCount %></strong>.</p>
+        <input type="text" readonly value="<%= inviteUrl %>" onclick="this.select()" style="width:100%; margin-bottom:8px;">
+        <a class="btn btn-whatsapp btn-block" target="_blank" rel="noopener"
+           href="https://wa.me/?text=<%= encodeURIComponent('Post your free ads on ' + site.name + ' \u2014 join with my link: ' + inviteUrl) %>">
+          Share Invite on WhatsApp
+        </a>
+      </div>
+    </div>
+
+    <h2 style="margin-top:36px;">Unlock Features with Stars</h2>
+    <div class="rewards-grid">
+      <% Object.entries(features).forEach(([id, f]) => { %>
+        <div class="card" style="padding: 20px;">
+          <h3><%= f.name %></h3>
+          <p class="muted"><%= f.description %></p>
+          <form method="post" action="/rewards/unlock/<%= id %>">
+            <button type="submit" class="btn btn-primary" <%= user.stars < f.cost ? 'disabled' : '' %>>
+              Unlock — <%= f.cost %> &#11088;
+            </button>
+          </form>
+        </div>
+      <% }) %>
+    </div>
+
+    <p class="muted" style="margin-top:24px;">
+      Feature unlocks apply automatically to the next ad you post while logged in with this WhatsApp number.
+    </p>
+  </div>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

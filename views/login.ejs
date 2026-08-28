@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Log In — <%= site.name %></title>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <div class="container narrow" style="padding: 40px 20px;">
+    <h1>Log in with WhatsApp</h1>
+    <p class="muted">No password needed — just your WhatsApp number. We'll create your account automatically if it's your first time.</p>
+
+    <% if (error) { %>
+      <div class="alert alert-error"><%= error %></div>
+    <% } %>
+    <% if (invite) { %>
+      <div class="alert alert-success">You were invited by a friend! Log in and post your first ad to activate their bonus stars.</div>
+    <% } %>
+
+    <form method="post" action="/login" class="card" style="padding: 24px;">
+      <input type="hidden" name="next" value="<%= next %>">
+      <input type="hidden" name="invite" value="<%= invite %>">
+      <label>WhatsApp Number</label>
+      <input type="text" name="whatsapp" placeholder="0771234567 or 263771234567" required autofocus>
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top: 16px;">Continue</button>
+    </form>
+  </div>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

@@ -6,6 +6,11 @@
     </a>
     <nav class="nav">
       <a href="/">Browse Ads</a>
+      <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+        <a href="/rewards" class="stars-pill">&#11088; <%= currentUser.stars %></a>
+      <% } else { %>
+        <a href="/login">Log In</a>
+      <% } %>
       <a href="/post" class="btn btn-post">+ Post Free Ad</a>
     </nav>
   </div>

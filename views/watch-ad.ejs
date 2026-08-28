@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Watch Ad — <%= site.name %></title>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <div class="container narrow" style="padding: 40px 20px; text-align:center;">
+    <h1>Watch this ad to earn a star</h1>
+    <p class="muted">This is a placeholder house ad. Plug in a real ad network (AdMob / Facebook Audience Network) here later — the timer and reward flow are already wired up.</p>
+
+    <div id="ad-slot" class="card" style="padding: 60px 20px; margin: 24px 0; background:#14181f; color:#fff;">
+      <p style="font-size:1.1rem; margin:0;">&#128250; House Ad</p>
+      <p class="muted" style="color:#a9afba;">Advertise your business here — contact us on WhatsApp.</p>
+    </div>
+
+    <p>Time remaining: <span id="countdown">15</span>s</p>
+    <form id="claim-form" method="post" action="/rewards/watch/claim">
+      <button id="claim-btn" type="submit" class="btn btn-primary btn-lg" disabled>Claim +1 Star</button>
+    </form>
+  </div>
+
+  <%- include('partials/footer') %>
+
+  <script>
+    let secondsLeft = 15;
+    const countdownEl = document.getElementById('countdown');
+    const claimBtn = document.getElementById('claim-btn');
+    const timer = setInterval(() => {
+      secondsLeft -= 1;
+      countdownEl.textContent = secondsLeft;
+      if (secondsLeft <= 0) {
+        clearInterval(timer);
+        countdownEl.textContent = '0';
+        claimBtn.disabled = false;
+        claimBtn.textContent = 'Claim +1 Star';
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

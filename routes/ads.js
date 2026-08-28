@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const router = express.Router();
 const Ad = require('../models/Ad');
+const User = require('../models/User');
 const { readDb } = require('../models/db');
 const { generateAdImage } = require('../services/adImage');
 
@@ -46,21 +47,43 @@ router.get('/', (req, res) => {
 
 router.get('/post', (req, res) => {
   const { categories } = readDb();
-  res.render('post', { categories, site: SITE, error: null });
+  const user = req.session.userId ? User.findById(req.session.userId) : null;
+  const maxPhotos = user && User.hasActiveFeature(user, 'extra_photos') ? 10 : 5;
+  res.render('post', { categories, site: SITE, error: null, maxPhotos });
 });
 
-router.post('/post', upload.array('images', 5), (req, res) => {
+router.post('/post', (req, res, next) => {
+  // Allow up to 10 photos if the logged-in user has the extra_photos unlock, else 5.
+  const user = req.session.userId ? User.findById(req.session.userId) : null;
+  const maxPhotos = user && User.hasActiveFeature(user, 'extra_photos') ? 10 : 5;
+  upload.array('images', maxPhotos)(req, res, next);
+}, (req, res) => {
   const { categories } = readDb();
+  const user = req.session.userId ? User.findById(req.session.userId) : null;
+  const maxPhotos = user && User.hasActiveFeature(user, 'extra_photos') ? 10 : 5;
   try {
     const { title, description, price, currency, category, location, whatsapp } = req.body;
     if (!title || !description || !whatsapp) {
-      return res.render('post', { categories, site: SITE, error: 'Title, description and WhatsApp number are required.' });
+      return res.render('post', { categories, site: SITE, error: 'Title, description and WhatsApp number are required.', maxPhotos });
     }
     const images = (req.files || []).map(f => '/uploads/' + f.filename);
-    const ad = Ad.createAd({ title, description, price, currency, category, location, whatsapp, images });
+
+    const featureFlags = {};
+    if (user) {
+      if (User.hasActiveFeature(user, 'highlight')) featureFlags.highlighted = true;
+      if (User.hasActiveFeature(user, 'top_boost')) featureFlags.boostedUntil = user.unlockedFeatures
+        .filter(f => f.featureId === 'top_boost').slice(-1)[0]?.expiresAt || null;
+      if (User.hasActiveFeature(user, 'no_expiry')) featureFlags.neverExpires = true;
+    }
+
+    const ad = Ad.createAd({ title, description, price, currency, category, location, whatsapp, images, ...featureFlags });
+
+    // Pay the referrer once, the first time this account posts an ad.
+    if (user) User.rewardReferrerIfEligible(user.id);
+
     res.redirect('/ad/' + ad.id + '?posted=1');
   } catch (err) {
-    res.render('post', { categories, site: SITE, error: err.message });
+    res.render('post', { categories, site: SITE, error: err.message, maxPhotos });
   }
 });
 

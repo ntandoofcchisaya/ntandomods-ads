@@ -18,6 +18,20 @@ Developed by **Ntandomods ZW**. Contact: **263771629199** (WhatsApp).
 - No database server required — stores data as JSON on a persistent disk
 - 100% free to post, no accounts, no fees
 
+## Stars & Rewards
+
+Users can log in with just their WhatsApp number (no password) at `/login`. Logged-in users get a rewards dashboard at `/rewards` where they can:
+
+- **Watch a house ad** (`/rewards/watch`) to earn 1 star, up to 5 stars/day per account. The ad slot is a placeholder — swap in a real network (AdMob, Facebook Audience Network) later; the timer + claim flow are already wired up.
+- **Invite friends** with a personal invite link (`/login?invite=<code>`). The inviter earns 5 stars the first time their invitee posts an ad (prevents fake-signup farming).
+- **Spend stars on feature unlocks**, applied automatically to the next ad the user posts while logged in:
+  - Highlight Ad (badge + top-of-category, 7 days) — 20 stars
+  - Extra Photos (10 instead of 5) — 10 stars
+  - Top of Search Boost (48h) — 30 stars
+  - Never Expire (skip auto-expiry) — 15 stars
+
+All user/star/invite data lives in the same JSON file as ads (`db.json`, under a `users` array), so it follows the same persistence rules described below (needs a persistent disk on Render to survive redeploys).
+
 ## Local development
 
 ```bash

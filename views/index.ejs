@@ -42,6 +42,11 @@
               <div class="no-img">No Image</div>
             <% } %>
             <span class="ad-cat"><%= ad.category %></span>
+            <% if (ad.boostedUntil && new Date(ad.boostedUntil) > new Date()) { %>
+              <span class="ad-boost-badge">&#128293; Boosted</span>
+            <% } else if (ad.highlighted) { %>
+              <span class="ad-highlight-badge">&#11088; Featured</span>
+            <% } %>
           </div>
           <div class="ad-card-body">
             <h3><%= ad.title %></h3>

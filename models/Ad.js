@@ -26,7 +26,11 @@ function createAd(data) {
     images: data.images || [],
     createdAt: new Date().toISOString(),
     views: 0,
-    status: 'active'
+    status: 'active',
+    // Reward-unlocked perks (all optional, set when the poster spent stars on them):
+    highlighted: data.highlighted || false,          // badge + top-of-category
+    boostedUntil: data.boostedUntil || null,          // ISO timestamp, top-of-search while active
+    neverExpires: data.neverExpires || false          // skips any future auto-expiry logic
   };
   db.ads.unshift(ad);
   writeDb(db);
@@ -47,6 +51,20 @@ function getAllAds({ category, search } = {}) {
       a.location.toLowerCase().includes(q)
     );
   }
+  // Boosted (top_boost, while active) and highlighted ads float to the top,
+  // most-recent first within each tier.
+  const now = Date.now();
+  const rank = (a) => {
+    const boosted = a.boostedUntil && new Date(a.boostedUntil).getTime() > now;
+    if (boosted) return 0;
+    if (a.highlighted) return 1;
+    return 2;
+  };
+  ads = ads.slice().sort((a, b) => {
+    const ra = rank(a), rb = rank(b);
+    if (ra !== rb) return ra - rb;
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
   return ads;
 }
 

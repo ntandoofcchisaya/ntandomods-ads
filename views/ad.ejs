@@ -31,6 +31,11 @@
       <% } %>
 
       <span class="ad-cat-badge"><%= ad.category %></span>
+      <% if (ad.boostedUntil && new Date(ad.boostedUntil) > new Date()) { %>
+        <span class="ad-boost-badge">&#128293; Boosted</span>
+      <% } else if (ad.highlighted) { %>
+        <span class="ad-highlight-badge">&#11088; Featured</span>
+      <% } %>
       <h1><%= ad.title %></h1>
       <% if (ad.price) { %>
         <div class="ad-detail-price"><%= ad.currency %> <%= ad.price.toLocaleString() %></div>
